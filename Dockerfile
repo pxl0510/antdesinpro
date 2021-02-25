@@ -1,10 +1,21 @@
-FROM node:12.18.3 as builder
-WORKDIR /app
-COPY package.json .
-RUN npm install --registry=http://registry.npm.taobao.org
-COPY . .
-RUN npm run build 
+# node镜像仅仅是用来打包文件
+FROM node:alpine as builder
  
-FROM nginx:latest
-COPY nginx.conf /etc/nginx
-COPY --from=builder /app/build /usr/share/nginx/html
+ENV PROJECT_ENV production
+ENV NODE_ENV production
+ 
+COPY package*.json /app/
+ 
+WORKDIR /app
+ 
+RUN npm install --registry=https://registry.npm.taobao.org
+ 
+COPY . /app
+ 
+RUN npm run build
+# 选择更小体积的基础镜像
+FROM nginx:alpine
+ 
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+ 
+COPY --from=builder /app/dist /app/dist
