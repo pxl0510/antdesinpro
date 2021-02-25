@@ -1,4 +1,4 @@
-FROM node:5.15.0-alpine as builder
+FROM node:12.18.3 as builder
 WORKDIR /app
 COPY package.json .
 RUN npm install --registry=http://registry.npm.taobao.org
